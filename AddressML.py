@@ -30,16 +30,17 @@ for column in df.columns:
 
 # Extract TF-IDF features for each split address field
 vectorizer = TfidfVectorizer(max_df=0.90, min_df=2, stop_words='english')
-X1 = vectorizer.fit_transform(df['Biiling Address1'])
-X2 = vectorizer.fit_transform(df['Biiling Address2'])
-X3 = vectorizer.fit_transform(df['Billing Post Code'])
-X4 = vectorizer.fit_transform(df['Matched Property Address1'])
-X5 = vectorizer.fit_transform(df['Matched Property Address2'])
-X6 = vectorizer.fit_transform(df['Matched Property Post Code'])
-X7 = vectorizer.fit_transform(df['Matched PropertyAU'])
+X1 = vectorizer.fit_transform(df['Site Billing Ref'])
+X2 = vectorizer.fit_transform(df['Biiling Address1'])
+X3 = vectorizer.transform(df['Biiling Address2'])
+X4 = vectorizer.transform(df['Billing Post Code'])
+X5 = vectorizer.transform(df['Matched Property Address1'])
+X6 = vectorizer.transform(df['Matched Property Address2'])
+X7 = vectorizer.transform(df['Matched Property Post Code'])
+X8 = vectorizer.transform(df['Matched PropertyAU'])
 
 # Concatenate all the features together
-X = hstack([X1, X2, X3, X4, X5, X6, X7])
+X = hstack([X1, X2, X3, X4, X5, X6, X7, X8])
 
 # Define target variable
 y = df['Is_Match'].astype(int)  # Convert back to int for the model
@@ -52,7 +53,6 @@ lr = LogisticRegression(max_iter=1000)  # Increased max_iter for convergence
 lr.fit(X_train, y_train)
 y_pred = lr.predict(X_test)
 print("Logistic Regression Accuracy: ", accuracy_score(y_test, y_pred))
-
 
 # Training Random Forest Model
 rf = RandomForestClassifier()
@@ -73,7 +73,6 @@ y_pred = svc.predict(X_test)
 print("SVM Classifier Accuracy: ", accuracy_score(y_test, y_pred))
 
 
-#MODEL TEST RUN
 
 # Read the test data
 df_test = pd.read_excel('/content/Test Dataset.xlsx')
@@ -104,8 +103,8 @@ X8_test = vectorizer.transform(df_combined['PropertyAU'])
 # Concatenate all the features together
 X_test = hstack([X1_test, X2_test, X3_test, X4_test, X5_test, X6_test, X7_test, X8_test])
 
-# Make predictions with the trained model
-y_pred_test = lr.predict(X_test)
+# Make predictions with the trained model-could be lr, rf, xgb, or svc depending on which model gave the best performance
+y_pred_test = rf.predict(X_test)
 
 # Add predictions to the combined dataframe
 df_combined['Is_Match_Prediction'] = y_pred_test
